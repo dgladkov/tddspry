@@ -1,4 +1,9 @@
-from django.contrib.auth.models import User
+# Custom User compatibility
+try:
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+except ImportError:
+    from django.contrib.auth.models import User
 
 
 __all__ = ('EMAIL', 'PASSWORD', 'USERNAME', 'create_profile', 'create_staff',
@@ -38,8 +43,11 @@ def create_user(obj, username=None, password=None, email=None, active=True,
     """
     Create Django user with given names or with default if absent.
     """
-    user = User(username=username or USERNAME,
-                email=email or EMAIL)
+    username_field_name = getattr(User, 'USERNAME_FIELD', 'username')
+    user = User(**{
+        username_field_name: username or USERNAME,
+        'email': email or EMAIL
+    })
 
     user.is_active = active
     user.is_staff = staff
