@@ -235,16 +235,8 @@ class DjangoPlugin(Plugin):
             runner = DjangoTestSuiteRunner(interactive=self.interactive,
                                            verbosity=self.verbosity)
 
-            # New Django tests runner set ``DEBUG`` to False on setup test
-            # environment, so we need to store real ``DEBUG`` value
-            DEBUG = settings.DEBUG
-
             # Setup test environment
             runner.setup_test_environment()
-
-            # And restore it to real value if needed
-            if settings.DEBUG != DEBUG:
-                settings.DEBUG = DEBUG
 
             # Setup test databases
             self.old_config = runner.setup_databases()
