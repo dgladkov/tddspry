@@ -40,11 +40,16 @@ class DjangoPlugin(Plugin):
     def begin(self):
         from django.conf import settings
         from django.core.handlers.wsgi import WSGIHandler
+        from django.db.models.loading import cache
+
         from django.test.simple import TEST_MODULE
 
         from tddspry.django.settings import IP, PORT
 
         from twill import add_wsgi_intercept
+
+        # swappable user will break unless AppCache is prepopulated, WTF
+        cache._populate()
 
         log.debug('DjangoPlugin start')
 
