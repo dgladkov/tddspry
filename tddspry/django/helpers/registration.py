@@ -1,7 +1,6 @@
 import re
 
 from django.core import mail
-from django.contrib.auth.models import User
 
 from tddspry.django.helpers import EMAIL, PASSWORD, USERNAME
 
@@ -42,6 +41,15 @@ def registration(obj, username=None, email=None, password=None,
     .. _`django-registration`: http://code.google.com/p/django-registration/
 
     """
+    # Custom User compatibility
+    try:
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+    except ImportError:
+        from django.contrib.auth.models import User
+
+    username_field_name = getattr(User, 'USERNAME_FIELD', 'username')
+
     # Go to registration page
     obj.go200(registration_url)
     obj.find('<input id="id_username" type="text" class="required" ' \
@@ -54,7 +62,7 @@ def registration(obj, username=None, email=None, password=None,
         obj.show()
 
     # Get created user
-    user = User.objects.get(username=USERNAME)
+    user = User.objects.get(**{username_field_name: USERNAME})
 
     # Created user should not be active
     obj.assert_false(user.is_active,
@@ -66,7 +74,7 @@ def registration(obj, username=None, email=None, password=None,
         obj.show()
 
     # Test user exists and is_active
-    user = User.objects.get(username=USERNAME)
+    user = User.objects.get(**{username_field_name: USERNAME})
     obj.assert_true(user.is_active, 'User is not activated yet.')
 
     # Test login

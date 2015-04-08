@@ -15,7 +15,6 @@ try:
     from django.conf import settings
 except ImportError:
     pass
-from django.db.models import get_model
 from django.utils.encoding import force_unicode
 from django.utils.html import escape as real_escape
 
@@ -897,6 +896,8 @@ class TestCase(DjangoTestCase, NoseTestCase):
         """
         if isinstance(model_or_manager, basestring):
             app, model = model_or_manager.split('.')
+
+            from django.db.models import get_model
             model_or_manager = get_model(app, model)
 
         if hasattr(model_or_manager, '_default_manager'):
